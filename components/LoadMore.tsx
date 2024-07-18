@@ -1,27 +1,31 @@
+// LoadMore.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
-import { fetchAnime } from "@/app/action";
-import AnimeCard, { AnimeProp } from "./AnimeCard";
-
-let page = 2;
+import AnimeCard from "./AnimeCard";
 
 export type AnimeCard = JSX.Element;
 
-function LoadMore() {
+interface LoadMoreProps {
+  onLoadMore: (page: number) => Promise<AnimeCard[]>;
+}
+
+function LoadMore({ onLoadMore }: LoadMoreProps) {
   const { ref, inView } = useInView();
   const [data, setData] = useState<AnimeCard[]>([]);
+  const [page, setPage] = useState(2);
 
   useEffect(() => {
     if (inView) {
-      fetchAnime(page).then((res) => {
+      onLoadMore(page).then((res) => {
         setData([...data, ...res]);
-        page++;
+        setPage(prev => prev + 1);
       });
     }
-  }, [inView, data]);
+  }, [inView, data, onLoadMore, page]);
 
   return (
     <>
